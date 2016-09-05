@@ -264,6 +264,8 @@ public:
     return isconnected;
   }
 
+  int awake();
+
 protected:
 
   int sendPing();
@@ -310,6 +312,7 @@ private:
   FP<void, MessageData&> defaultMessageHandler;
 
   bool isconnected;
+  bool isStateAwake;
 
   struct Registrations
   {

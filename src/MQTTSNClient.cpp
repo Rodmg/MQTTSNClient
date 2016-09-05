@@ -10,6 +10,7 @@ MQTTSN::Client::Client(NETWORK& network, unsigned int command_timeout_ms)  : ips
   clearRegistrations();
   this->command_timeout_ms = command_timeout_ms;
   isconnected = false;
+  isStateAwake = false;
 
   // Zero will settings
   willTopic[0] = 0;
@@ -876,5 +877,37 @@ int MQTTSN::Client::disconnect(unsigned short duration)
     rc = sendPacket(len, timer);            // send the disconnect packet
 
   isconnected = false;
+  return rc;
+}
+
+int MQTTSN::Client::awake()
+{
+  int rc = FAILURE;
+  isStateAwake = true;
+
+  MQTTSNString clientid = MQTTSNString_initializer;
+  TIMER timer = TIMER(1000);
+  int len = MQTTSNSerialize_pingreq(sendbuf, MAX_PACKET_SIZE, clientid);
+  if (len > 0 && (rc = sendPacket(len, timer)) == SUCCESS) // send the ping packet
+  {
+    // wait for ping resp or publish
+    while(rc != MQTTSN_PINGRESP)
+    {
+      timer.countdown_ms(1000);
+      do
+      {
+        if (timer.expired())
+        {
+          // we timed out
+          isStateAwake = false;
+          return FAILURE;
+        }
+        rc = cycle(timer);
+      }
+      while (rc != MQTTSN_PINGRESP || rc != MQTTSN_PUBLISH);
+    }
+  }
+
+  isStateAwake = false;
   return rc;
 }
