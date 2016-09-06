@@ -904,7 +904,7 @@ int MQTTSN::Client::awake()
         }
         rc = cycle(timer);
       }
-      while (rc != MQTTSN_PINGRESP || rc != MQTTSN_PUBLISH);
+      while (rc != MQTTSN_PINGRESP && rc != MQTTSN_PUBLISH);
     }
   }
 
