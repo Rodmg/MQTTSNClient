@@ -577,7 +577,12 @@ int MQTTSN::Client::subscribe(const char* topic, enum QoS qos, messageHandler mh
   topicid->type = MQTTSN_TOPIC_TYPE_NORMAL;
   topicid->data.long_.name = (char*)topic;
   topicid->data.long_.len = strnlen(topic, MAX_REGISTRATION_TOPIC_NAME_LENGTH);
-  return subscribe(*topicid, qos, mh);
+
+  int rc = FAILURE;
+  rc = subscribe(*topicid, qos, mh);
+  // Free topicid memory, fixes memory leak
+  if (rc != SUCCESS) free(topicid);
+  return rc;
 }
 
 int MQTTSN::Client::subscribe(MQTTSN_topicid& topicFilter, enum QoS qos, messageHandler messageHandler)
