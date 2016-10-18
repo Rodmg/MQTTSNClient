@@ -502,7 +502,10 @@ int MQTTSN::Client::connect(MQTTSNPacket_connectData& options)
         goto exit; // there was a problem
     }
     else
+    {
+      rc = FAILURE;
       goto exit;
+    }
 
     if (this->duration > 0)
       last_received.countdown(this->duration);
@@ -520,7 +523,11 @@ int MQTTSN::Client::connect(MQTTSNPacket_connectData& options)
         goto exit; // there was a problem
     }
     else
+    {
+      rc = FAILURE;
       goto exit;
+    }
+
   }
 
   if (this->duration > 0)
